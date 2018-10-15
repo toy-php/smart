@@ -1,0 +1,26 @@
+{
+  "name": "toy-php/smart",
+  "description": "PHP микрофреймворк реализующий архитектуру ADR",
+  "minimum-stability": "stable",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Сейтумеров Мустафа",
+      "email": "seymus007@gmail.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.1",
+    "psr/http-message": "^1.0",
+    "psr/http-server-middleware": "^1.0",
+    "psr/http-server-handler": "^1.0",
+    "psr/container": "^1.0"
+  },
+  "autoload": {
+    "psr-0": {
+      "": [
+        "src/"
+      ]
+    }
+  }
+}
