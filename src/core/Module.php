@@ -151,6 +151,16 @@ class Module implements ContainerInterface
      */
     public function has($id)
     {
-        return $this->container->has($id);
+        if($this->container->has($id)) {
+            return true;
+        }
+        if (!empty($this->submodules)){
+            foreach ($this->submodules as $submodule) {
+                if ($submodule->has($id)) {
+                    return true;
+                }
+            }
+        }
+        return false;
     }
 }
