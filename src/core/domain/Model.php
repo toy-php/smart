@@ -11,15 +11,14 @@ abstract class Model extends BaseObject implements ModelInterface
 {
 
     /**
+     * @var int
+     */
+    protected $id;
+
+    /**
      * @var array | callable[]
      */
     protected $listeners = [];
-
-    /**
-     * Массив свойств которые не будут затронуты при восстановлении состояния модели
-     * @var array
-     */
-    protected $excludedProperty = [];
 
     /**
      * @inheritdoc
@@ -27,18 +26,7 @@ abstract class Model extends BaseObject implements ModelInterface
     public function restoreState(MementoInterface $memento)
     {
         $state = $memento->getState();
-        foreach ($state as $key => $value) {
-            $excludedProperty = array_flip($this->excludedProperty);
-            if (isset($excludedProperty[$key])){
-                continue;
-            }
-            $property = $this->$key;
-            if ($property instanceof Model and is_array($value)) {
-                $property->restoreState(new Memento($value));
-                continue;
-            }
-            $this->$key = $value;
-        }
+        $this->id = isset($state['id']) ? $state['id'] : $this->id;
     }
 
     /**
