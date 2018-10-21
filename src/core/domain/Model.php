@@ -28,11 +28,11 @@ abstract class Model extends BaseObject implements ModelInterface
     {
         $state = $memento->getState();
         foreach ($state as $key => $value) {
-            $property = $this->$key;
             $excludedProperty = array_flip($this->excludedProperty);
-            if (isset($excludedProperty[$property])){
+            if (isset($excludedProperty[$key])){
                 continue;
             }
+            $property = $this->$key;
             if ($property instanceof Model and is_array($value)) {
                 $property->restoreState(new Memento($value));
                 continue;
