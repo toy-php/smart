@@ -67,8 +67,13 @@ abstract class Repository implements RepositoryInterface, \SplObserver
      */
     public function save(ModelInterface $model): void
     {
-        $state = $model->createMemento()->getState();
-        R::store(R::dispense($state));
+        $memento = $model->createMemento();
+        $state = $memento->getState();
+        $id = R::store(R::dispense($state));
+        if ($memento->getId() === 0){
+            $memento->setId($id);
+            $model->restoreState($memento);
+        }
     }
 
     /**

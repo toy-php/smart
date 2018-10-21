@@ -19,6 +19,22 @@ class Memento implements MementoInterface
     }
 
     /**
+     * @inheritdoc
+     */
+    public function getId(): int
+    {
+        return isset($this->state['id']) ? $this->state['id'] : 0;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function setId(int $id)
+    {
+        $this->state['id'] = $id;
+    }
+
+    /**
      * Получение состояния модели
      * @return array
      */

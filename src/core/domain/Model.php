@@ -3,16 +3,39 @@
 namespace core\domain;
 
 use interfaces\domain\EventInterface;
+use interfaces\domain\MementoInterface;
 use interfaces\domain\ModelInterface;
 use SplObserver;
 
-abstract class Model implements ModelInterface
+abstract class Model extends BaseObject implements ModelInterface
 {
 
     /**
      * @var array | callable[]
      */
     protected $listeners = [];
+
+    /**
+     * Массив свойств которые не будут затронуты при восстановлении состояния модели
+     * @var array
+     */
+    protected $excludedProperty = [];
+
+    /**
+     * @inheritdoc
+     */
+    public function restoreState(MementoInterface $memento)
+    {
+        $state = $memento->getState();
+        foreach ($state as $key => $value) {
+            $property = $this->$key;
+            if ($property instanceof Model and is_array($value)) {
+                $property->restoreState(new Memento($value));
+                continue;
+            }
+            $this->$key = $value;
+        }
+    }
 
     /**
      * Подписка на события модели

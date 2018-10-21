@@ -12,6 +12,13 @@ interface ModelInterface extends \SplSubject
     public function createMemento(): MementoInterface;
 
     /**
+     * Восстановить состояние модели из снимка
+     * @param MementoInterface $memento
+     * @return void
+     */
+    public function restoreState(MementoInterface $memento);
+
+    /**
      * Подписка на события модели
      * @param string $eventType
      * @param callable $listener
