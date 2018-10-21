@@ -5,6 +5,7 @@ namespace core\domain;
 use exceptions\ModelNotFoundException;
 use interfaces\domain\ModelInterface;
 use interfaces\domain\RepositoryInterface;
+use RedBeanPHP\OODBBean;
 use RedBeanPHP\R;
 use SplSubject;
 
@@ -27,6 +28,22 @@ abstract class Repository implements RepositoryInterface, \SplObserver
     }
 
     /**
+     * Создание модели из данных bean
+     * @param OODBBean $bean
+     * @return ModelInterface
+     * @throws ModelNotFoundException
+     */
+    protected function createFrom(OODBBean $bean): ModelInterface
+    {
+        if ($bean->isEmpty()){
+            throw new ModelNotFoundException('Модель не найдена');
+        }
+        $model = $this->factory->createFrom($bean);
+        $model->attach($this);
+        return $model;
+    }
+
+    /**
      * Найти модель по идентификатору
      * @param int $id
      * @return ModelInterface
@@ -35,12 +52,7 @@ abstract class Repository implements RepositoryInterface, \SplObserver
     public function findById(int $id): ModelInterface
     {
         $bean = R::load($this->getModelType(), $id);
-        if ($bean->isEmpty()){
-            throw new ModelNotFoundException('Модель не найдена');
-        }
-        $model = $this->factory->createFrom($bean);
-        $model->attach($this);
-        return $model;
+        return $this->createFrom($bean);
     }
 
     /**
