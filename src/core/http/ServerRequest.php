@@ -62,7 +62,11 @@ class ServerRequest extends Request implements ServerRequestInterface
         }
         $headers = function_exists('getallheaders') ? getallheaders() : [];
         $method = (php_sapi_name() === 'cli') ? 'COMMAND' : filter_input(INPUT_SERVER, 'REQUEST_METHOD');
-        return (new static($method, $headers, $_GET, $parsedBody, $_FILES, $_COOKIE, $_SERVER))
+        $files = [];
+        foreach ($_FILES as $file) {
+            $files[] = new UploadedFile($file);
+        }
+        return (new static($method, $headers, $_GET, $parsedBody, $files, $_COOKIE, $_SERVER))
             ->withUri(static::getUriFromGlobals())
             ->withBody(new Stream($body));
     }
