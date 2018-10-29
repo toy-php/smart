@@ -18,7 +18,7 @@ class BaseObject
     {
         $setter = 'set' . ucfirst($name);
         if (method_exists($this, $setter)) {
-            $setter($value);
+            $this->$setter($value);
         }
         throw new UnknownPropertyException(sprintf('Объект класса "%s" не содержит метода доступа к свойству "%s"', get_called_class(), $name));
     }
@@ -43,7 +43,7 @@ class BaseObject
     {
         $getter = 'get' . ucfirst($name);
         if (method_exists($this, $getter)) {
-            return $getter();
+            return $this->$getter();
         }
         throw new UnknownPropertyException(sprintf('Объект класса "%s" не содержит метода доступа к свойству "%s"', get_called_class(), $name));
     }
