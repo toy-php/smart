@@ -30,6 +30,15 @@ abstract class Model extends BaseObject implements ModelInterface
     }
 
     /**
+     * Получение идентификатора модели
+     * @return int
+     */
+    public function getId(): int
+    {
+        return $this->id;
+    }
+
+    /**
      * Подписка на события модели
      * @param string $eventType
      * @param callable $listener
