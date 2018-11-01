@@ -64,15 +64,24 @@ abstract class Repository implements RepositoryInterface, \SplObserver
     /**
      * Сохранить состояние модели
      * @param ModelInterface $model
+     * @throws \Exception
      */
     public function save(ModelInterface $model): void
     {
-        $memento = $model->createMemento();
-        $state = $memento->getState();
-        $id = R::store(R::dispense($state));
-        if ($memento->getId() === 0){
-            $memento->setId($id);
-            $model->restoreState($memento);
+        R::begin();
+        try{
+            $memento = $model->createMemento();
+            $state = $memento->getState();
+            $id = R::store(R::dispense($state));
+            if ($memento->getId() === 0){
+                $memento->setId($id);
+                $model->restoreState($memento);
+            }
+            R::commit();
+        }
+        catch( \Exception $e ) {
+            R::rollback();
+            throw $e;
         }
     }
 
@@ -84,6 +93,7 @@ abstract class Repository implements RepositoryInterface, \SplObserver
      * </p>
      * @return void
      * @since 5.1.0
+     * @throws \Exception
      */
     public function update(SplSubject $subject)
     {
