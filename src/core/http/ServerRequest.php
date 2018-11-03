@@ -64,6 +64,9 @@ class ServerRequest extends Request implements ServerRequestInterface
         $method = (php_sapi_name() === 'cli') ? 'COMMAND' : filter_input(INPUT_SERVER, 'REQUEST_METHOD');
         $files = [];
         foreach ($_FILES as $file) {
+            if (!is_uploaded_file($file)) {
+                continue;
+            }
             $files[] = new UploadedFile($file);
         }
         return (new static($method, $headers, $_GET, $parsedBody, $files, $_COOKIE, $_SERVER))
