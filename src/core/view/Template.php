@@ -84,13 +84,23 @@ class Template
     }
 
     /**
+     * Получить содержимое без очистки
+     * @param string $name
+     * @return null|string
+     */
+    public function raw(string $name): ?string
+    {
+        return $this->__isset($name) ? $this->templateData[$name] : null;
+    }
+
+    /**
      * Получить атрибут
      * @param $name
      * @return mixed|null
      */
     public function __get($name)
     {
-        $value = $this->__isset($name) ? $this->templateData[$name] : null;
+        $value = $this->raw($name);
         if (is_string($value)) {
             return $this->e($value);
         }
