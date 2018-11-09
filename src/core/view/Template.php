@@ -100,14 +100,7 @@ class Template
      */
     public function __get($name)
     {
-        $value = $this->raw($name);
-        if (is_string($value)) {
-            return $this->e($value);
-        }
-        if (is_array($value)) {
-            return filter_var_array($value, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-        }
-        return $value;
+        return $this->raw($name);
     }
 
     /**
