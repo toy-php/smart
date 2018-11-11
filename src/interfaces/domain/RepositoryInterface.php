@@ -16,6 +16,16 @@ interface RepositoryInterface
     public function findById(int $id): ModelInterface;
 
     /**
+     * Найти массив моделей согласно фильтру
+     * @param array $filter
+     * @param int $page
+     * @param int $limit
+     * @return ModelInterface[]
+     * @throws ModelNotFoundException
+     */
+    public function findList(array $filter = [], int $page = 0, int $limit = 20): array;
+
+    /**
      * Сохранить состояние модели
      * @param ModelInterface $model
      */

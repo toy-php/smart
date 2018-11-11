@@ -56,6 +56,29 @@ abstract class Repository implements RepositoryInterface, \SplObserver
     }
 
     /**
+     * Найти массив моделей согласно фильтру
+     * @param array $filter
+     * @param int $page
+     * @param int $limit
+     * @return ModelInterface[]
+     * @throws ModelNotFoundException
+     */
+    public function findList(array $filter = [], int $page = 0, int $limit = 20): array
+    {
+        $sql = implode(' AND ', array_map(function ($key) {
+            return $key . '=?';
+        }, array_keys($filter)));
+        $offset = $page * $limit;
+        $sql .= sprintf(' LIMIT %d, %d', $offset, $limit);
+        $beans = R::findAll($this->getModelType(), $sql, array_values($filter));
+        $models = [];
+        foreach ($beans as $bean) {
+            $models[] = $this->createFrom($bean);
+        }
+        return $models;
+    }
+
+    /**
      * Получить тип модели с которой работает репозиторий
      * @return string
      */
