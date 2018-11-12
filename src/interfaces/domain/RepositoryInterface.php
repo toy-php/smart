@@ -26,6 +26,13 @@ interface RepositoryInterface
     public function findList(array $filter = [], int $page = 0, int $limit = 20): array;
 
     /**
+     * Количество моделей удовлетворяющих фильтру
+     * @param array $filter
+     * @return int
+     */
+    public function count(array $filter = []): int;
+
+    /**
      * Сохранить состояние модели
      * @param ModelInterface $model
      */

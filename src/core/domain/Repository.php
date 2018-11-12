@@ -79,6 +79,19 @@ abstract class Repository implements RepositoryInterface, \SplObserver
     }
 
     /**
+     * Количество моделей удовлетворяющих фильтру
+     * @param array $filter
+     * @return int
+     */
+    public function count(array $filter = []): int
+    {
+        $sql = implode(' AND ', array_map(function ($key) {
+            return $key . '=?';
+        }, array_keys($filter)));
+        return R::count($this->getModelType(), $sql, array_values($filter));
+    }
+
+    /**
      * Получить тип модели с которой работает репозиторий
      * @return string
      */
