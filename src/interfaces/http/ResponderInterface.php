@@ -12,9 +12,9 @@ interface ResponderInterface
     /**
      * Переадресовать запрос
      * @param UriInterface $uri
-     * @return void
+     * @return ResponseInterface
      */
-    public function redirect(UriInterface $uri);
+    public function redirect(UriInterface $uri): ResponseInterface;
 
     /**
      * Сформировать и получить объект ответа
