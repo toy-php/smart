@@ -2,7 +2,7 @@
 
 namespace exceptions;
 
-class DataValidateErrorException extends Exception
+class ErrorException extends Exception
 {
 
     protected $key;

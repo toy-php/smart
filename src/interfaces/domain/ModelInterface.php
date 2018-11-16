@@ -2,6 +2,8 @@
 
 namespace interfaces\domain;
 
+use interfaces\view\ViewInterface;
+
 interface ModelInterface extends \SplSubject
 {
 
@@ -33,5 +35,24 @@ interface ModelInterface extends \SplSubject
      * @return void
      */
     public function off(string $eventType, callable $listener);
+
+    /**
+     * Есть ли ошибки в модели
+     * @return bool
+     */
+    public function hasErrors(): bool;
+
+    /**
+     * Получить код ошибки
+     * @return int
+     */
+    public function getErrorCode(): int;
+
+    /**
+     * Вывод модели в виде строки
+     * @param ViewInterface $view
+     * @return string
+     */
+    public function draw(ViewInterface $view): string;
 
 }

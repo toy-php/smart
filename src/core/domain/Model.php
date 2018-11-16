@@ -2,6 +2,7 @@
 
 namespace core\domain;
 
+use exceptions\ErrorsException;
 use interfaces\domain\EventInterface;
 use interfaces\domain\MementoInterface;
 use interfaces\domain\ModelInterface;
@@ -19,6 +20,32 @@ abstract class Model extends BaseObject implements ModelInterface
      * @var array | callable[]
      */
     protected $listeners = [];
+
+    /**
+     * @var ErrorsException
+     */
+    protected $errors;
+
+    public function __construct()
+    {
+        $this->errors = new ErrorsException();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getErrorCode(): int
+    {
+        return $this->errors->getCode();
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function hasErrors(): bool
+    {
+        return $this->errors->hasErrors();
+    }
 
     /**
      * @inheritdoc

@@ -4,22 +4,22 @@ namespace exceptions;
 
 use Throwable;
 
-class DataValidateErrorsException extends MultiException implements \JsonSerializable
+class ErrorsException extends MultiException implements \JsonSerializable
 {
 
-    public function __construct(string $message = "Validate errors", int $code = 412, Throwable $previous = null)
+    public function __construct(string $message = "", int $code = 0, Throwable $previous = null)
     {
         parent::__construct($message, $code, $previous);
     }
 
     /**
      * @param mixed $offset
-     * @param DataValidateErrorException $value
+     * @param ErrorException $value
      * @throws InvalidArgumentException
      */
     public function offsetSet($offset, $value)
     {
-        if (!$value instanceof DataValidateErrorException){
+        if (!$value instanceof ErrorException){
             throw new InvalidArgumentException('Передан неверный тип исключения');
         }
         $this->innerOffsetSet($offset, $value);
@@ -44,7 +44,7 @@ class DataValidateErrorsException extends MultiException implements \JsonSeriali
     public function jsonSerialize()
     {
         return [
-            'errors' => array_map(function (DataValidateErrorException $exception){
+            'errors' => array_map(function (ErrorException $exception){
                 return [
                     'status' => $exception->getCode(),
                     'source' => [$exception->getKey() => $exception->getValue()],
