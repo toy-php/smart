@@ -2,16 +2,13 @@
 
 namespace core\view;
 
-use core\DataArrayAccessTrait;
 use exceptions\Exception;
 use exceptions\InvalidArgumentException;
 use interfaces\view\ExtensionInterface;
 use interfaces\view\ViewInterface;
 
-class View implements ViewInterface, \ArrayAccess
+class View implements ViewInterface
 {
-
-    use DataArrayAccessTrait;
 
     /**
      * Путь к директории шаблона
@@ -48,15 +45,6 @@ class View implements ViewInterface, \ArrayAccess
         $this->templateName = $templateName;
         $this->templateDir = $templateDir ?: __DIR__;
         $this->templateExt = $templateExt;
-    }
-
-    /**
-     * Добавить свойства представления
-     * @param array $properties
-     */
-    public function setProperties(array $properties)
-    {
-        $this->data = $properties;
     }
 
     /**
