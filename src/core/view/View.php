@@ -32,7 +32,7 @@ class View implements ViewInterface
      * Функции расширения представления
      * @var array
      */
-    protected $extensions = [];
+    protected $methods = [];
 
     /**
      * View constructor.
@@ -49,28 +49,28 @@ class View implements ViewInterface
 
     /**
      * Добавление масива функций расширений
-     * @param array $extensions
+     * @param array $methods
      * @throws InvalidArgumentException
      */
-    public function addExtensions(array $extensions)
+    public function addMethods(array $methods)
     {
-        foreach ($extensions as $name => $extension) {
-            $this->addExtension($name, $extension);
+        foreach ($methods as $name => $method) {
+            $this->addMethod($name, $method);
         }
     }
 
     /**
      * Добавить расширение
      * @param string $name
-     * @param ViewMethodInterface $extension
+     * @param ViewMethodInterface $method
      * @throws InvalidArgumentException
      */
-    public function addExtension(string $name, ViewMethodInterface $extension)
+    public function addMethod(string $name, ViewMethodInterface $method)
     {
-        if (isset($this->extensions[$name])){
+        if (isset($this->methods[$name])){
             throw new InvalidArgumentException(sprintf('Функция с именем "%s" уже зарегистрирована', $name));
         }
-        $this->extensions[$name] = $extension;
+        $this->methods[$name] = $method;
     }
 
     /**
@@ -82,10 +82,10 @@ class View implements ViewInterface
      */
     public function __call($name, $arguments)
     {
-        if (!isset($this->extensions[$name])){
+        if (!isset($this->methods[$name])){
             throw new InvalidArgumentException(sprintf('Функция с именем "%s" не зарегистрирована', $name));
         }
-        return $this->extensions[$name](...$arguments);
+        return $this->methods[$name](...$arguments);
     }
 
     /**
