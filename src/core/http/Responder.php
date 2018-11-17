@@ -7,6 +7,7 @@ use interfaces\domain\ModelInterface;
 use interfaces\http\ResponderInterface;
 use interfaces\view\ViewInterface;
 use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\UriInterface;
 
 abstract class Responder implements ResponderInterface
 {
@@ -56,4 +57,16 @@ abstract class Responder implements ResponderInterface
             $this->protocolVersion
         );
     }
+
+    /**
+     * Переадресовать запрос
+     * @param UriInterface $uri
+     * @return ResponseInterface
+     * @throws Exception
+     */
+    public function redirect(UriInterface $uri): ResponseInterface
+    {
+        return $this->createResponse('')->withHeader('Location', $uri);
+    }
+
 }
