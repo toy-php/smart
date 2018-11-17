@@ -2,14 +2,13 @@
 
 namespace interfaces\view;
 
-interface ExtensionInterface
+interface ViewMethodInterface
 {
 
     /**
      * Выполнить функцию расширения
-     * @param $name
-     * @param $arguments
+     * @param mixed ...$arguments
      * @return mixed
      */
-    public function __call($name, $arguments);
+    public function __invoke(... $arguments);
 }

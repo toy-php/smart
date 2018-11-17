@@ -4,7 +4,7 @@ namespace core\view;
 
 use exceptions\Exception;
 use exceptions\InvalidArgumentException;
-use interfaces\view\ExtensionInterface;
+use interfaces\view\ViewMethodInterface;
 use interfaces\view\ViewInterface;
 
 class View implements ViewInterface
@@ -62,10 +62,10 @@ class View implements ViewInterface
     /**
      * Добавить расширение
      * @param string $name
-     * @param ExtensionInterface $extension
+     * @param ViewMethodInterface $extension
      * @throws InvalidArgumentException
      */
-    public function addExtension(string $name, ExtensionInterface $extension)
+    public function addExtension(string $name, ViewMethodInterface $extension)
     {
         if (isset($this->extensions[$name])){
             throw new InvalidArgumentException(sprintf('Функция с именем "%s" уже зарегистрирована', $name));
