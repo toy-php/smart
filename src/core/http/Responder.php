@@ -9,7 +9,7 @@ use interfaces\view\ViewInterface;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\UriInterface;
 
-abstract class Responder implements ResponderInterface
+class Responder implements ResponderInterface
 {
 
     protected $view;
