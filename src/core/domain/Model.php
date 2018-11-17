@@ -26,8 +26,9 @@ abstract class Model extends BaseObject implements ModelInterface
      */
     protected $errors;
 
-    public function __construct()
+    public function __construct(int $id)
     {
+        $this->id = $id;
         $this->errors = new ErrorsException();
     }
 
