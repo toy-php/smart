@@ -4,6 +4,7 @@ namespace core\view;
 
 use exceptions\Exception;
 use exceptions\InvalidArgumentException;
+use exceptions\UnknownPropertyException;
 use interfaces\view\ViewMethodInterface;
 use interfaces\view\ViewInterface;
 
@@ -33,6 +34,12 @@ class View implements ViewInterface
      * @var array
      */
     protected $methods = [];
+
+    /**
+     * Свойства представления
+     * @var array
+     */
+    protected $properties = [];
 
     /**
      * View constructor.
@@ -86,6 +93,40 @@ class View implements ViewInterface
             throw new InvalidArgumentException(sprintf('Функция с именем "%s" не зарегистрирована', $name));
         }
         return $this->methods[$name](...$arguments);
+    }
+
+    /**
+     * Получить свойство представления
+     * @param $name
+     * @return mixed
+     * @throws UnknownPropertyException
+     */
+    public function __get($name)
+    {
+        if (!$this->__isset($name)){
+            throw new UnknownPropertyException(sprintf('Представление не имеет свойства "%s"', $name));
+        }
+        return $this->properties[$name];
+    }
+
+    /**
+     * Установить свойство представления
+     * @param $name
+     * @param $value
+     */
+    public function __set($name, $value)
+    {
+        $this->properties[$name] = $value;
+    }
+
+    /**
+     * Наличие свойства представления
+     * @param $name
+     * @return bool
+     */
+    public function __isset($name)
+    {
+        return isset($this->properties[$name]);
     }
 
     /**
