@@ -96,6 +96,15 @@ class View implements ViewInterface
     }
 
     /**
+     * Загрузить свойства представления
+     * @param array $properties
+     */
+    public function loadProperties(array $properties)
+    {
+        $this->properties = $properties;
+    }
+
+    /**
      * Получить свойство представления
      * @param $name
      * @return mixed
