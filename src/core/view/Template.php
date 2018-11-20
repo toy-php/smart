@@ -201,7 +201,7 @@ class Template
     private function loadTemplateFile(string $templateName)
     {
         $file = $this->view->getTemplatePath($templateName);
-        include_once $file;
+        include $file;
     }
 
     /**
@@ -221,8 +221,7 @@ class Template
             );
             $this->templateData = $viewData;
             $this->loadTemplateFile($templateName);
-            $content = ob_get_contents();
-            ob_end_clean();
+            $content = ob_get_clean();
             if (!empty($this->layoutTemplateName)) {
                 /** @var Template $layout */
                 $layout = $this->view->makeTemplate();
