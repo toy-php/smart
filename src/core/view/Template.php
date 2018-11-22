@@ -40,7 +40,7 @@ class Template
      * Секции
      * @var array
      */
-    protected $sections = [];
+    protected static $sections = [];
 
     /**
      * Директория для статических файлоов
@@ -124,8 +124,8 @@ class Template
             throw new Exception('Секция с именем "content" зарезервированна.');
         }
         $this->startedSectionName = $name;
-        if (!isset($this->sections[$this->startedSectionName])) {
-            $this->sections[$this->startedSectionName] = [];
+        if (!isset(static::$sections[$this->startedSectionName])) {
+            static::$sections[$this->startedSectionName] = [];
         }
         ob_start(null, 0,
             PHP_OUTPUT_HANDLER_CLEANABLE |
@@ -143,7 +143,7 @@ class Template
         if (empty($this->startedSectionName)) {
             throw new Exception('Сперва нужно стартовать секцию методом start()');
         }
-        $this->sections[$this->startedSectionName][] = ob_get_contents();
+        static::$sections[$this->startedSectionName][] = ob_get_contents();
         ob_end_clean();
     }
 
@@ -155,9 +155,9 @@ class Template
     public function section($name)
     {
         $sections = [];
-        if (isset($this->sections[$name])) {
-            $sections = array_reverse($this->sections[$name]);
-            unset($this->sections[$name]);
+        if (isset(static::$sections[$name])) {
+            $sections = array_reverse(static::$sections[$name]);
+            unset(static::$sections[$name]);
         }
         return implode("\n", $sections);
     }
@@ -225,7 +225,7 @@ class Template
             if (!empty($this->layoutTemplateName)) {
                 /** @var Template $layout */
                 $layout = $this->view->makeTemplate();
-                $layout->sections = array_merge($this->sections, ['content' => [$content]]);
+                static::$sections['content'][] = $content;
                 $content = $layout->render($this->layoutTemplateName, $this->layoutTemplateData);
             }
             return $content;
