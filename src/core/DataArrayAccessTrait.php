@@ -7,6 +7,11 @@ trait DataArrayAccessTrait
 
     protected $data = [];
 
+    protected function innerOffsetExists($offset): bool
+    {
+        return isset($this->data[$offset]);
+    }
+
     /**
      * Whether a offset exists
      * @link http://php.net/manual/en/arrayaccess.offsetexists.php
@@ -21,7 +26,12 @@ trait DataArrayAccessTrait
      */
     public function offsetExists($offset)
     {
-        return isset($this->data[$offset]);
+        return $this->innerOffsetExists($offset);
+    }
+
+    protected function innerOffsetGet($offset)
+    {
+        return isset($this->data[$offset]) ? $this->data[$offset] : null;
     }
 
     /**
@@ -35,7 +45,7 @@ trait DataArrayAccessTrait
      */
     public function offsetGet($offset)
     {
-        return isset($this->data[$offset]) ? $this->data[$offset] : null;
+        return $this->innerOffsetGet($offset);
     }
 
     protected function innerOffsetSet($offset, $value)
@@ -64,6 +74,11 @@ trait DataArrayAccessTrait
         $this->innerOffsetSet($offset, $value);
     }
 
+    protected function innerOffsetUnset($offset)
+    {
+        unset($this->data[$offset]);
+    }
+
     /**
      * Offset to unset
      * @link http://php.net/manual/en/arrayaccess.offsetunset.php
@@ -75,6 +90,6 @@ trait DataArrayAccessTrait
      */
     public function offsetUnset($offset)
     {
-        unset($this->data[$offset]);
+        $this->offsetUnset($offset);
     }
 }

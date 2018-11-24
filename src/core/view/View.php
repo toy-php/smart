@@ -4,18 +4,12 @@ namespace core\view;
 
 use exceptions\Exception;
 use exceptions\InvalidArgumentException;
-use exceptions\UnknownPropertyException;
+use interfaces\domain\ModelInterface;
 use interfaces\view\ViewMethodInterface;
 use interfaces\view\ViewInterface;
 
 class View implements ViewInterface
 {
-
-    /**
-     * Путь к директории шаблона
-     * @var string
-     */
-    protected $templateDir = '';
 
     /**
      * Имя шаблона текущего представления
@@ -24,22 +18,28 @@ class View implements ViewInterface
     protected $templateName = '';
 
     /**
-     * Расширение файла
-     * @var string
-     */
-    protected $templateExt = '.php';
-
-    /**
      * Функции расширения представления
      * @var array
      */
     protected $methods = [];
 
     /**
-     * Свойства представления
-     * @var array
+     * Путь к директории шаблона
+     * @var string
      */
-    protected $properties = [];
+    public $templateDir = __DIR__;
+
+    /**
+     * Расширение файла
+     * @var string
+     */
+    public $templateExt = '.php';
+
+    /**
+     * Директория для статических файлоов
+     * @var string
+     */
+    public $assetsPath = 'assets';
 
     /**
      * View constructor.
@@ -47,11 +47,9 @@ class View implements ViewInterface
      * @param string $templateName
      * @param string $templateExt
      */
-    public function __construct(string $templateName = '', string $templateDir = '', string $templateExt = '.php')
+    public function __construct(string $templateName)
     {
         $this->templateName = $templateName;
-        $this->templateDir = $templateDir ?: __DIR__;
-        $this->templateExt = $templateExt;
     }
 
     /**
@@ -96,49 +94,6 @@ class View implements ViewInterface
     }
 
     /**
-     * Загрузить свойства представления
-     * @param array $properties
-     */
-    public function loadProperties(array $properties)
-    {
-        $this->properties = $properties;
-    }
-
-    /**
-     * Получить свойство представления
-     * @param $name
-     * @return mixed
-     * @throws UnknownPropertyException
-     */
-    public function __get($name)
-    {
-        if (!$this->__isset($name)){
-            throw new UnknownPropertyException(sprintf('Представление не имеет свойства "%s"', $name));
-        }
-        return $this->properties[$name];
-    }
-
-    /**
-     * Установить свойство представления
-     * @param $name
-     * @param $value
-     */
-    public function __set($name, $value)
-    {
-        $this->properties[$name] = $value;
-    }
-
-    /**
-     * Наличие свойства представления
-     * @param $name
-     * @return bool
-     */
-    public function __isset($name)
-    {
-        return isset($this->properties[$name]);
-    }
-
-    /**
      * Получить путь к файлу шаблона
      * @param string $templateName
      * @return string
@@ -156,6 +111,27 @@ class View implements ViewInterface
         throw new Exception(sprintf('Файл шаблона по пути "%s" недоступен', $templatePath));
     }
 
+
+    /**
+     * Получить путь к директории статических файлов
+     * @param string $path
+     * @param bool $isAppendTimestamp
+     * @return string
+     * @throws Exception
+     */
+    public function asset(string $path, bool $isAppendTimestamp = false): string
+    {
+        $filePath = DIRECTORY_SEPARATOR . $this->assetsPath . DIRECTORY_SEPARATOR .  ltrim($path, DIRECTORY_SEPARATOR);
+        $realPath = filter_input(INPUT_SERVER, 'DOCUMENT_ROOT') . $filePath;
+        if (!file_exists($realPath)) {
+            throw new Exception(
+                'Файл по пути "' . $realPath . '" не доступен'
+            );
+        }
+        $lastUpdated = filemtime($realPath);
+        return $filePath . ($isAppendTimestamp ? '?v=' . $lastUpdated : '');
+    }
+
     /**
      * Получить экземпляр объекта шаблона
      * @return Template
@@ -166,35 +142,14 @@ class View implements ViewInterface
     }
 
     /**
-     * Сгенерировать имя шаблона на основе имени класса модели представления
-     * @return string
-     */
-    protected function createTemplateName(): string
-    {
-        preg_match_all('/[A-Z][a-z]+/m', get_called_class(), $splitted);
-        return strtolower(implode('-', array_filter($splitted[0], function ($value) {
-            return $value !== 'Model' and $value !== 'View' and $value !== 'ViewModel';
-        })));
-    }
-
-    /**
-     * Получить имя шаблона
-     * @return string
-     */
-    public function getTemplateName(): string
-    {
-        return $this->templateName ?: $this->createTemplateName();
-    }
-
-    /**
      * Рендеринг шаблона
-     * @param array $data
+     * @param ModelInterface $model
      * @return string
      * @throws \Exception
      */
-    public function draw(array $data = []): string
+    public function draw(ModelInterface $model): string
     {
-        return $this->makeTemplate()->render($this->getTemplateName(), $data);
+        return $this->makeTemplate()->render($this->templateName, $model);
     }
 
 }

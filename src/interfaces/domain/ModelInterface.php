@@ -4,7 +4,7 @@ namespace interfaces\domain;
 
 use interfaces\view\ViewInterface;
 
-interface ModelInterface extends \SplSubject
+interface ModelInterface extends \SplSubject, \ArrayAccess
 {
 
     /**

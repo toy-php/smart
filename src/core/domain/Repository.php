@@ -4,6 +4,8 @@ namespace core\domain;
 
 use exceptions\Exception;
 use exceptions\ModelNotFoundException;
+use interfaces\domain\CollectionInterface;
+use interfaces\domain\MementoInterface;
 use interfaces\domain\ModelInterface;
 use interfaces\domain\RepositoryInterface;
 use RedBeanPHP\OODBBean;
@@ -14,24 +16,50 @@ abstract class Repository implements RepositoryInterface, \SplObserver
 {
 
     /**
-     * Фабрика создания модели
-     * @var Factory
+     * Получить класс модели
+     * @return string
      */
-    protected $factory;
+    abstract public function getModelClass():string ;
 
     /**
-     * Repository constructor.
-     * @param Factory $factory
+     * Получить тип модели с которой работает репозиторий
+     * @return string
      */
-    public function __construct(Factory $factory)
+    abstract protected function getModelType(): string ;
+
+    /**
+     * Преобразование bean в снимок состояния модели
+     * @param OODBBean $bean
+     * @return MementoInterface
+     */
+    abstract protected function map(OODBBean $bean): MementoInterface;
+
+    /**
+     * Создание модели
+     * @param MementoInterface $memento
+     * @return ModelInterface
+     * @throws Exception
+     */
+    protected function createModel(MementoInterface $memento): ModelInterface
     {
-        $this->factory = $factory;
+        $modelClass = $this->getModelClass();
+        if (!class_exists($modelClass)) {
+            throw new Exception('Невеерный тип класса модели "%s"', $modelClass);
+        }
+        $model = new $modelClass();
+        if (!$model instanceof ModelInterface){
+            throw new Exception('Модель "%s" не реализует необходимый интерфейс', $modelClass);
+        }
+        $model->restoreState($memento);
+        $model->attach($this);
+        return $model;
     }
 
     /**
      * Создание модели из данных bean
      * @param OODBBean $bean
      * @return ModelInterface
+     * @throws Exception
      * @throws ModelNotFoundException
      */
     protected function createFrom(OODBBean $bean): ModelInterface
@@ -39,15 +67,14 @@ abstract class Repository implements RepositoryInterface, \SplObserver
         if ($bean->isEmpty()){
             throw new ModelNotFoundException('Модель не найдена');
         }
-        $model = $this->factory->createFrom($bean);
-        $model->attach($this);
-        return $model;
+        return $this->createModel($this->map($bean));
     }
 
     /**
      * Найти модель по идентификатору
      * @param int $id
      * @return ModelInterface
+     * @throws Exception
      * @throws ModelNotFoundException
      */
     public function findById(int $id): ModelInterface
@@ -57,14 +84,24 @@ abstract class Repository implements RepositoryInterface, \SplObserver
     }
 
     /**
+     * Получить объект коллекции
+     * @return CollectionInterface
+     */
+    protected function createCollection(): CollectionInterface
+    {
+        return new Collection();
+    }
+
+    /**
      * Найти массив моделей согласно фильтру
      * @param array $filter
      * @param int $page
      * @param int $limit
-     * @return ModelInterface[]
+     * @return ModelInterface[] | CollectionInterface
+     * @throws Exception
      * @throws ModelNotFoundException
      */
-    public function findList(array $filter = [], int $page = 0, int $limit = 20): array
+    public function findList(array $filter = [], int $page = 0, int $limit = 20): CollectionInterface
     {
         $sql = implode(' AND ', array_map(function ($key) {
             return $key . '=?';
@@ -72,11 +109,17 @@ abstract class Repository implements RepositoryInterface, \SplObserver
         $offset = $page * $limit;
         $sql .= sprintf(' LIMIT %d, %d', $offset, $limit);
         $beans = R::findAll($this->getModelType(), $sql, array_values($filter));
-        $models = [];
+        $total = ceil($this->count($filter) / $limit);
+        $collection = $this->createCollection();
         foreach ($beans as $bean) {
-            $models[] = $this->createFrom($bean);
+            $collection[] = $this->createFrom($bean);
         }
-        return $models;
+        $collection['meta'] = [
+            'currentPage' => $page,
+            'totalPages' => $total,
+            'rowsOnPage' => $limit
+        ];
+        return $collection;
     }
 
     /**
@@ -91,12 +134,6 @@ abstract class Repository implements RepositoryInterface, \SplObserver
         }, array_keys($filter)));
         return R::count($this->getModelType(), $sql, array_values($filter));
     }
-
-    /**
-     * Получить тип модели с которой работает репозиторий
-     * @return string
-     */
-    abstract protected function getModelType(): string ;
 
     /**
      * Сохранить состояние модели

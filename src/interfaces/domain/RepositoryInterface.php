@@ -20,10 +20,10 @@ interface RepositoryInterface
      * @param array $filter
      * @param int $page
      * @param int $limit
-     * @return ModelInterface[]
+     * @return CollectionInterface|ModelInterface[]
      * @throws ModelNotFoundException
      */
-    public function findList(array $filter = [], int $page = 0, int $limit = 20): array;
+    public function findList(array $filter = [], int $page = 0, int $limit = 20): CollectionInterface;
 
     /**
      * Количество моделей удовлетворяющих фильтру

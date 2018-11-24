@@ -3,6 +3,7 @@
 namespace core\view;
 
 use exceptions\Exception;
+use interfaces\domain\ModelInterface;
 
 class Template
 {
@@ -13,10 +14,10 @@ class Template
     protected $view;
 
     /**
-     * Данные представления
-     * @var array
+     * Модель данных представления
+     * @var ModelInterface
      */
-    protected $templateData = [];
+    protected $model;
 
     /**
      * Имя макета шаблона
@@ -25,10 +26,10 @@ class Template
     protected $layoutTemplateName = '';
 
     /**
-     * Данные макета шаблона
-     * @var array
+     * Модель данных макета шаблона
+     * @var ModelInterface
      */
-    protected $layoutTemplateData = [];
+    protected $layoutModel;
 
     /**
      * имя открытой секции
@@ -42,55 +43,9 @@ class Template
      */
     protected static $sections = [];
 
-    /**
-     * Директория для статических файлоов
-     * @var string
-     */
-    protected $assetsPath = 'assets';
-
     public function __construct(View $view)
     {
         $this->view = $view;
-    }
-
-    /**
-     * Получить путь к директории статических файлов
-     * @param string $path
-     * @param bool $isAppendTimestamp
-     * @return string
-     * @throws Exception
-     */
-    public function asset(string $path, bool $isAppendTimestamp = false): string
-    {
-        $filePath = DIRECTORY_SEPARATOR . $this->assetsPath . DIRECTORY_SEPARATOR .  ltrim($path, DIRECTORY_SEPARATOR);
-        $realPath = filter_input(INPUT_SERVER, 'DOCUMENT_ROOT') . $filePath;
-        if (!file_exists($realPath)) {
-            throw new Exception(
-                'Файл по пути "' . $realPath . '" не доступен'
-            );
-        }
-        $lastUpdated = filemtime($realPath);
-        return $filePath . ($isAppendTimestamp ? '?v=' . $lastUpdated : '');
-    }
-
-    /**
-     * Фильтрация строки
-     * @param string $string
-     * @return string
-     */
-    public function e(string $string): string
-    {
-        return filter_var($string, FILTER_SANITIZE_FULL_SPECIAL_CHARS);
-    }
-
-    /**
-     * Получить содержимое без очистки
-     * @param string $name
-     * @return null|mixed
-     */
-    public function raw(string $name)
-    {
-        return $this->__isset($name) ? $this->templateData[$name] : null;
     }
 
     /**
@@ -100,7 +55,7 @@ class Template
      */
     public function __get($name)
     {
-        return $this->raw($name);
+        return $this->model[$name];
     }
 
     /**
@@ -110,7 +65,7 @@ class Template
      */
     public function __isset($name)
     {
-        return isset($this->templateData[$name]);
+        return isset($this->model[$name]);
     }
 
     /**
@@ -163,34 +118,26 @@ class Template
     }
 
     /**
-     * @return array
-     */
-    public function getSections(): array
-    {
-        return $this->sections;
-    }
-
-    /**
      * Объявление макета шаблона
      * @param $layoutTemplateName
-     * @param array $layoutViewData
+     * @param ModelInterface $layoutModel
      */
-    public function layout(string $layoutTemplateName, array $layoutViewData = [])
+    public function layout(string $layoutTemplateName, array $layoutModel)
     {
         $this->layoutTemplateName = $layoutTemplateName;
-        $this->layoutTemplateData = $layoutViewData;
+        $this->layoutModel = $layoutModel;
     }
 
     /**
      * Вставка представления в текущий шаблон
      * @param string $templateName
-     * @param array $viewData
+     * @param ModelInterface $model
      * @return string
      * @throws \Exception
      */
-    public function insert(string $templateName, array $viewData = [])
+    public function insert(string $templateName, ModelInterface $model)
     {
-        return $this->view->makeTemplate()->render($templateName, $viewData);
+        return $this->view->makeTemplate()->render($templateName, $model);
     }
 
     /**
@@ -207,11 +154,11 @@ class Template
     /**
      * Рендеринг шаблона
      * @param string $templateName
-     * @param array $viewData
+     * @param ModelInterface $model
      * @return string
      * @throws \Exception
      */
-    public function render(string $templateName, array $viewData = []): string
+    public function render(string $templateName, ModelInterface $model): string
     {
         try {
             ob_start(null, 0,
@@ -219,14 +166,14 @@ class Template
                 PHP_OUTPUT_HANDLER_FLUSHABLE |
                 PHP_OUTPUT_HANDLER_REMOVABLE
             );
-            $this->templateData = $viewData;
+            $this->model = $model;
             $this->loadTemplateFile($templateName);
             $content = ob_get_clean();
             if (!empty($this->layoutTemplateName)) {
                 /** @var Template $layout */
                 $layout = $this->view->makeTemplate();
                 static::$sections['content'][] = $content;
-                $content = $layout->render($this->layoutTemplateName, $this->layoutTemplateData);
+                $content = $layout->render($this->layoutTemplateName, $this->layoutModel);
             }
             return $content;
         } catch (\Exception $exception) {
