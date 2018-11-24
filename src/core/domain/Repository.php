@@ -2,6 +2,7 @@
 
 namespace core\domain;
 
+use exceptions\Exception;
 use exceptions\ModelNotFoundException;
 use interfaces\domain\ModelInterface;
 use interfaces\domain\RepositoryInterface;
@@ -106,6 +107,9 @@ abstract class Repository implements RepositoryInterface, \SplObserver
     {
         R::begin();
         try{
+            if ($model->hasErrors()){
+                throw new Exception('Модель имеет ошибки и не может быть сохранена');
+            }
             $memento = $model->createMemento();
             $state = $memento->getState();
             $id = R::store(R::dispense($state));
