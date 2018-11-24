@@ -113,9 +113,9 @@ abstract class Repository implements RepositoryInterface, \SplObserver
             $memento = $model->createMemento();
             $state = $memento->getState();
             $id = R::store(R::dispense($state));
-            if ($memento->getId() === 0){
-                $memento->setId($id);
-                $model->restoreState($memento);
+            if ($model->getId() === 0){
+                $state['id'] = $id;
+                $model->restoreState(new Memento($state));
             }
             R::commit();
         }

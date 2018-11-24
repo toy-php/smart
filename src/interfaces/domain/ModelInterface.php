@@ -8,6 +8,12 @@ interface ModelInterface extends \SplSubject
 {
 
     /**
+     * Получить идентификатор модели
+     * @return int
+     */
+    public function getId(): int;
+
+    /**
      * Получение снимка состояния модели
      * @return MementoInterface
      */
