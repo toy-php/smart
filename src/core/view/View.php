@@ -12,16 +12,16 @@ class View implements ViewInterface
 {
 
     /**
-     * Имя шаблона текущего представления
-     * @var string
-     */
-    protected $templateName = '';
-
-    /**
      * Функции расширения представления
      * @var array
      */
     protected $methods = [];
+
+    /**
+     * Имя шаблона текущего представления
+     * @var string
+     */
+    public $templateName = '';
 
     /**
      * Путь к директории шаблона
@@ -40,17 +40,6 @@ class View implements ViewInterface
      * @var string
      */
     public $assetsPath = 'assets';
-
-    /**
-     * View constructor.
-     * @param string $templateDir
-     * @param string $templateName
-     * @param string $templateExt
-     */
-    public function __construct(string $templateName)
-    {
-        $this->templateName = $templateName;
-    }
 
     /**
      * Добавление масива функций расширений
