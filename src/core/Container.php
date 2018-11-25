@@ -130,6 +130,10 @@ class Container implements ContainerInterface
     {
         foreach ($configProperties as $name => $value) {
             if (!$reflectionClass->hasProperty($name)) {
+                if ($reflectionClass->hasMethod('__set')) {
+                    $reflectionClass->getMethod('__set')->invoke($instance, $name, $value);
+                    continue;
+                }
                 throw new ContainerException(sprintf('Объект класса "%s" не имеет свойства "%s"', $reflectionClass->getName(), $name));
             }
             $reflectionClass->getProperty($name)->setValue($instance, $value);
