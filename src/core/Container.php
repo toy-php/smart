@@ -145,7 +145,13 @@ class Container implements ContainerInterface
     private function factory($id)
     {
         $config = $this->config[$id];
-        if (!is_array($config) or !isset($config['class'])) {
+        if (!is_array($config)) {
+            return $config;
+        }
+        if (!isset($config['class'])){
+            if (isset($config['extends'])) {
+                return $this->factory($config['extends']);
+            }
             return $config;
         }
         if (!class_exists($config['class'])) {
