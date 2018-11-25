@@ -122,9 +122,9 @@ class Template
      * @param $layoutTemplateName
      * @param ModelInterface $layoutModel
      */
-    public function layout(string $layoutTemplateName, array $layoutModel)
+    public function layout(string $layoutTemplateName, ModelInterface $layoutModel = null)
     {
-        $this->layoutTemplateName = $layoutTemplateName;
+        $this->layoutTemplateName = $layoutTemplateName ?: $this->model;
         $this->layoutModel = $layoutModel;
     }
 
@@ -135,9 +135,9 @@ class Template
      * @return string
      * @throws \Exception
      */
-    public function insert(string $templateName, ModelInterface $model)
+    public function insert(string $templateName, ModelInterface $model = null)
     {
-        return $this->view->makeTemplate()->render($templateName, $model);
+        return $this->view->makeTemplate()->render($templateName, $model ?: $this->model);
     }
 
     /**
