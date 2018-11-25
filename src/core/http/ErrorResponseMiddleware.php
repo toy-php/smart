@@ -5,7 +5,6 @@ namespace core\http;
 use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 use Psr\Http\Server\RequestHandlerInterface;
-use Psr\Log\LoggerInterface;
 use Whoops\Handler\HandlerInterface;
 use Whoops\Handler\JsonResponseHandler;
 use Whoops\Handler\PlainTextHandler;
@@ -17,17 +16,6 @@ class ErrorResponseMiddleware extends Middleware
 {
 
     protected $errorHandler;
-
-    /**
-     * Установить логер ошибок
-     * @var LoggerInterface|null
-     */
-    protected $logger;
-
-    public function setLogger(LoggerInterface $logger)
-    {
-        $this->logger = $logger;
-    }
 
     /**
      * Установить обработчик ошибки
@@ -49,11 +37,6 @@ class ErrorResponseMiddleware extends Middleware
         } catch (\Throwable $exception) {
             ob_start();
             $whoops = new Run;
-            $whoops->pushHandler(function (\Throwable $exception) {
-                if (!empty($this->logger)) {
-                    $this->logger->error($exception->getMessage(), $exception->getTrace());
-                }
-            });
             if (!empty($this->errorHandler)) {
                 $header = $request->getHeader('Accept');
                 $contentType = array_shift($header);
