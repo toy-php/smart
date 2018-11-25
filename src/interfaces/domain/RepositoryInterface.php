@@ -4,7 +4,7 @@ namespace interfaces\domain;
 
 use exceptions\ModelNotFoundException;
 
-interface RepositoryInterface
+interface RepositoryInterface extends \SplObserver
 {
 
     /**

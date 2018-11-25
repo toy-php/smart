@@ -12,7 +12,7 @@ use RedBeanPHP\OODBBean;
 use RedBeanPHP\R;
 use SplSubject;
 
-abstract class Repository implements RepositoryInterface, \SplObserver
+abstract class Repository implements RepositoryInterface
 {
 
     /**
