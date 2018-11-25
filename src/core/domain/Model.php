@@ -7,6 +7,7 @@ use core\EventsTrait;
 use core\SubjectTrait;
 use exceptions\ErrorException;
 use exceptions\ErrorsException;
+use exceptions\Exception;
 use interfaces\domain\MementoInterface;
 use interfaces\domain\ModelInterface;
 use interfaces\view\ViewInterface;
@@ -161,6 +162,19 @@ abstract class Model implements ModelInterface
     public function getId(): int
     {
         return $this->id;
+    }
+
+    /**
+     * Установка идентификатора модели
+     * @param int $id
+     * @throws Exception
+     */
+    public function setId(int $id)
+    {
+        if (!empty($this->id)){
+            throw new Exception('Модель имеет идентификатор');
+        }
+        $this->id = $id;
     }
 
     /**
