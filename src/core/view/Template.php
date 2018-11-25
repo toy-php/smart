@@ -124,8 +124,8 @@ class Template
      */
     public function layout(string $layoutTemplateName, ModelInterface $layoutModel = null)
     {
-        $this->layoutTemplateName = $layoutTemplateName ?: $this->model;
-        $this->layoutModel = $layoutModel;
+        $this->layoutTemplateName = $layoutTemplateName;
+        $this->layoutModel = $layoutModel ?: $this->model;
     }
 
     /**
