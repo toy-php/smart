@@ -2,6 +2,7 @@
 
 namespace interfaces\domain;
 
+use exceptions\ErrorsException;
 use interfaces\view\ViewInterface;
 
 interface ModelInterface extends \SplSubject, \ArrayAccess
@@ -43,10 +44,30 @@ interface ModelInterface extends \SplSubject, \ArrayAccess
     public function off(string $eventType, callable $listener);
 
     /**
+     * Получить ошибки модели
+     * @return ErrorsException
+     */
+    public function getErrors(): ErrorsException;
+
+    /**
      * Есть ли ошибки в модели
      * @return bool
      */
     public function hasErrors(): bool;
+
+    /**
+     * Получить первую ошибку для ключа
+     * @param string $key
+     * @return string
+     */
+    public function getError(string $key): string;
+
+    /**
+     * Наличие ошибки для ключа
+     * @param string $key
+     * @return bool
+     */
+    public function hasError(string $key): bool ;
 
     /**
      * Получить код ошибки

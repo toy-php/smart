@@ -36,6 +36,42 @@ abstract class Model implements ModelInterface
     /**
      * @inheritdoc
      */
+    public function getErrors(): ErrorsException
+    {
+        return $this->errors;
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function getError(string $key): string
+    {
+        /** @var ErrorException $exception */
+        foreach ($this['errors'] as $exception) {
+            if ($exception->getKey() === $key) {
+                return $exception->getMessage();
+            }
+        }
+        return '';
+    }
+
+    /**
+     * @inheritdoc
+     */
+    public function hasError(string $key): bool
+    {
+        /** @var ErrorException $exception */
+        foreach ($this['errors'] as $exception) {
+            if ($exception->getKey() === $key) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    /**
+     * @inheritdoc
+     */
     public function getErrorCode(): int
     {
         return $this->errors->getCode();
