@@ -59,13 +59,13 @@ class Responder implements ResponderInterface
     }
 
     /**
-     * Переадресовать запрос
-     * @param UriInterface $uri
-     * @return ResponseInterface
+     * @inheritdoc
      * @throws Exception
      */
-    public function redirect(UriInterface $uri): ResponseInterface
+    public function redirect(UriInterface $uri, array $params = []): ResponseInterface
     {
+        $query = http_build_query($params);
+        $uri->withQuery($query);
         return $this->createResponse('')->withHeader('Location', $uri);
     }
 

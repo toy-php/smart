@@ -10,11 +10,11 @@ interface ResponderInterface
 {
 
     /**
-     * Переадресовать запрос
      * @param UriInterface $uri
+     * @param array $params
      * @return ResponseInterface
      */
-    public function redirect(UriInterface $uri): ResponseInterface;
+    public function redirect(UriInterface $uri, array $params = []): ResponseInterface;
 
     /**
      * Сформировать и получить объект ответа
