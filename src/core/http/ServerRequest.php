@@ -60,7 +60,15 @@ class ServerRequest extends Request implements ServerRequestInterface
         if (!empty($xmlHttpRequest) and strtolower($xmlHttpRequest) === 'xmlhttprequest') {
             $parsedBody = json_decode(stream_get_contents($body), true) ?: [];
         }
-        $headers = function_exists('getallheaders') ? getallheaders() : [];
+        $headers = function_exists('getallheaders') ? getallheaders() : (function () {
+            $headers = [];
+            foreach ($_SERVER as $name => $value) {
+                if (substr($name, 0, 5) == 'HTTP_') {
+                    $headers[str_replace(' ', '-', ucwords(strtolower(str_replace('_', ' ', substr($name, 5)))))] = $value;
+                }
+            }
+            return $headers;
+        })();
         $method = (php_sapi_name() === 'cli') ? 'COMMAND' : filter_input(INPUT_SERVER, 'REQUEST_METHOD');
         $files = [];
         foreach ($_FILES as $file) {
