@@ -137,6 +137,63 @@ class Container implements ContainerInterface
     }
 
     /**
+     * Билдинг объекта
+     * @param $instance
+     * @param $reflectionClass
+     * @param $config
+     * @return mixed
+     * @throws ContainerException
+     */
+    private function build($instance, $reflectionClass, $config)
+    {
+        if (isset($config['properties'])) {
+            $this->setProperties($instance, $reflectionClass, $config['properties']);
+        }
+        if (isset($config['calls'])) {
+            $this->callMethods($instance, $reflectionClass, $config['calls']);
+        }
+        return $instance;
+    }
+
+    /**
+     * Расширение объекта
+     * @param array $config
+     * @return mixed
+     * @throws ContainerException
+     */
+    private function extendsObject(array $config)
+    {
+        try {
+            $instance = $this->factory($config['extends']);
+            $reflectionClass = new \ReflectionClass($instance);
+            return $this->build($instance, $reflectionClass, $config);
+        } catch (\ReflectionException $exception) {
+            throw new ContainerException($exception->getMessage(), $exception->getCode(), $exception);
+        }
+    }
+
+    /**
+     * Создание объекта
+     * @param array $config
+     * @return mixed
+     * @throws ContainerException
+     */
+    private function createObject(array $config)
+    {
+        try {
+            if (!class_exists($config['class'])) {
+                throw new ContainerException(sprintf('Класс "%s" не доступен', $config['class']));
+            }
+            $reflectionClass = new \ReflectionClass($config['class']);
+            $configArguments = isset($config['arguments']) ? $config['arguments'] : [];
+            $instance = $this->createInstance($reflectionClass, $configArguments);
+            return $this->build($instance, $reflectionClass, $config);
+        } catch (\ReflectionException $exception) {
+            throw new ContainerException($exception->getMessage(), $exception->getCode(), $exception);
+        }
+    }
+
+    /**
      * Создание объекта
      * @param $id
      * @return object
@@ -150,27 +207,11 @@ class Container implements ContainerInterface
         }
         if (!isset($config['class'])){
             if (isset($config['extends'])) {
-                return $this->factory($config['extends']);
+                return $this->extendsObject($config);
             }
             return $config;
         }
-        if (!class_exists($config['class'])) {
-            throw new ContainerException(sprintf('Класс "%s" не доступен', $config['class']));
-        }
-        try {
-            $reflectionClass = new \ReflectionClass($config['class']);
-            $configArguments = isset($config['arguments']) ? $config['arguments'] : [];
-            $instance = $this->createInstance($reflectionClass, $configArguments);
-            if (isset($config['properties'])) {
-                $this->setProperties($instance, $reflectionClass, $config['properties']);
-            }
-            if (isset($config['calls'])) {
-                $this->callMethods($instance, $reflectionClass, $config['calls']);
-            }
-            return $instance;
-        } catch (\ReflectionException $exception) {
-            throw new ContainerException($exception->getMessage(), $exception->getCode(), $exception);
-        }
+        return $this->createObject($config);
     }
 
     /**
