@@ -14,6 +14,7 @@ class SessionMiddleware extends Middleware
     protected $digestAlgo;
     protected $cipherAlgo;
     protected $cipherKeyLen;
+    public $lifeTime = 0; // Время жизни сессионной куки в днях
 
     public function __construct(string $secret,
                                 int $expire = 2592000,
@@ -53,6 +54,10 @@ class SessionMiddleware extends Middleware
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
         session_set_save_handler($this->createSessionHandler(), true);
+        if ($this->lifeTime > 0){
+            $lifetime = 60 * 60 * 24 * $this->lifeTime;
+            session_set_cookie_params($lifetime, '/', $request->getUri()->getHost());
+        }
         session_start();
         return $this->next->process($request, $handler);
     }
