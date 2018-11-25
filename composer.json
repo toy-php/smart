@@ -12,6 +12,7 @@
   "require": {
     "ext-json": "*",
     "ext-openssl": "*",
+    "ext-apache": "*",
     "php": ">=7.1",
     "psr/http-message": "^1.0",
     "psr/http-server-middleware": "^1.0",

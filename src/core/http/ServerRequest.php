@@ -58,7 +58,7 @@ class ServerRequest extends Request implements ServerRequestInterface
         $parsedBody = $_POST;
         $xmlHttpRequest = filter_input(INPUT_SERVER, 'HTTP_X_REQUESTED_WITH', FILTER_SANITIZE_STRING);
         if (!empty($xmlHttpRequest) and strtolower($xmlHttpRequest) === 'xmlhttprequest') {
-            $parsedBody = json_decode(stream_get_contents($body), true);
+            $parsedBody = json_decode(stream_get_contents($body), true) ?: [];
         }
         $headers = function_exists('getallheaders') ? getallheaders() : [];
         $method = (php_sapi_name() === 'cli') ? 'COMMAND' : filter_input(INPUT_SERVER, 'REQUEST_METHOD');
