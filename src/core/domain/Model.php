@@ -71,17 +71,13 @@ abstract class Model implements ModelInterface
      */
     public function offsetSet($offset, $value)
     {
-        $setter = 'set' . ucfirst($offset);
-        if (method_exists($this, $setter)) {
-            $this->$setter($value);
-            return;
-        }
+        $isValid = false;
         try{
             $validator = 'validate' . ucfirst($offset);
             if (method_exists($this, $validator)) {
-                return;
+                $this->$validator($value);
+                $isValid = true;
             }
-            $this->$validator($value);
         }catch (\Exception $exception) {
             $this->errors[] = new ErrorException(
                 $offset,
@@ -91,7 +87,14 @@ abstract class Model implements ModelInterface
                 $exception);
             return;
         }
-        $this->innerOffsetSet($offset, $value);
+        $setter = 'set' . ucfirst($offset);
+        if (method_exists($this, $setter)) {
+            $this->$setter($value);
+            return;
+        }
+        if ($isValid){
+            $this->innerOffsetSet($offset, $value);
+        }
     }
 
     /**
