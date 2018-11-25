@@ -30,9 +30,9 @@ abstract class Repository implements RepositoryInterface
     /**
      * Преобразование bean в снимок состояния модели
      * @param OODBBean $bean
-     * @return MementoInterface
+     * @return array
      */
-    abstract protected function map(OODBBean $bean): MementoInterface;
+    abstract protected function map(OODBBean $bean): array ;
 
     /**
      * Создание модели
@@ -67,7 +67,7 @@ abstract class Repository implements RepositoryInterface
         if ($bean->isEmpty()){
             throw new ModelNotFoundException('Модель не найдена');
         }
-        return $this->createModel($this->map($bean));
+        return $this->createModel(new Memento($this->map($bean)));
     }
 
     /**
