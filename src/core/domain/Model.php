@@ -82,13 +82,23 @@ abstract class Model implements ModelInterface
     }
 
     /**
+     * Получение имени метода
+     * @param string $offset
+     * @return string
+     */
+    protected function methodName(string $offset)
+    {
+        return implode('', array_map('ucfirst', explode('_', $offset)));
+    }
+
+    /**
      * Получение данных модели по ключу
      * @param mixed $offset
      * @return mixed|null
      */
     public function offsetGet($offset)
     {
-        $getter = 'get' . ucfirst($offset);
+        $getter = 'get' . $this->methodName($offset);
         if (method_exists($this, $getter)) {
             return $this->$getter();
         }
@@ -104,7 +114,7 @@ abstract class Model implements ModelInterface
     {
         $isValid = false;
         try{
-            $validator = 'validate' . ucfirst($offset);
+            $validator = 'validate' . $this->methodName($offset);
             if (method_exists($this, $validator)) {
                 $this->$validator($value);
                 $isValid = true;
@@ -118,7 +128,7 @@ abstract class Model implements ModelInterface
                 $exception);
             return;
         }
-        $setter = 'set' . ucfirst($offset);
+        $setter = 'set' . $this->methodName($offset);
         if (method_exists($this, $setter)) {
             $this->$setter($value);
             return;
