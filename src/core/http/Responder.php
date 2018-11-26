@@ -65,7 +65,9 @@ class Responder implements ResponderInterface
     public function redirect(UriInterface $uri, array $params = []): ResponseInterface
     {
         if (!empty($params)){
-            $uri = $uri->withQuery(http_build_query($params));
+            $uriParams = [];
+            parse_str($uri->getQuery(),$uriParams);
+            $uri = $uri->withQuery(http_build_query(array_merge($uriParams, $params)));
         }
         return $this->createResponse('')->withHeader('Location', $uri);
     }
