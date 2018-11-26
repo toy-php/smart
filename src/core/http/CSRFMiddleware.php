@@ -9,7 +9,7 @@ use Psr\Http\Server\RequestHandlerInterface;
 class CSRFMiddleware extends Middleware
 {
 
-    public $tokenName = 'scrf-token';
+    public $tokenName = 'csrf-token';
 
     protected function generateToken()
     {
