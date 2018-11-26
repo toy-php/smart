@@ -156,7 +156,7 @@ abstract class Model implements ModelInterface
      */
     public function getId(): int
     {
-        return $this->offsetExists('id') ? $this->offsetGet('id') : 0;
+        return $this->offsetExists('id') ? $this->innerOffsetGet('id') : 0;
     }
 
     /**
