@@ -20,11 +20,6 @@ abstract class Model implements ModelInterface
     use DataArrayAccessTrait;
 
     /**
-     * @var int
-     */
-    protected $id = 0;
-
-    /**
      * @var ErrorsException
      */
     protected $errors;
@@ -90,7 +85,6 @@ abstract class Model implements ModelInterface
      * Получение данных модели по ключу
      * @param mixed $offset
      * @return mixed|null
-     * @throws \exceptions\UnknownPropertyException
      */
     public function offsetGet($offset)
     {
@@ -151,7 +145,8 @@ abstract class Model implements ModelInterface
     public function restoreState(MementoInterface $memento)
     {
         $state = $memento->getState();
-        $this->id = isset($state['id']) and is_numeric($state['id'])? (int)$state['id'] : $this->id;
+        $id = isset($state['id']) and is_numeric($state['id'])? (int)$state['id'] : $this->getId();
+        $this->innerOffsetSet('id', $id);
         $this->data = $state;
     }
 
@@ -161,7 +156,7 @@ abstract class Model implements ModelInterface
      */
     public function getId(): int
     {
-        return $this->id;
+        return $this->offsetExists('id') ? $this->offsetGet('id') : 0;
     }
 
     /**
@@ -171,10 +166,7 @@ abstract class Model implements ModelInterface
      */
     public function setId(int $id)
     {
-        if (!empty($this->id)){
-            throw new Exception('Модель имеет идентификатор');
-        }
-        $this->id = $id;
+        throw new Exception('Идентификатор модели нельзя менять');
     }
 
     /**
