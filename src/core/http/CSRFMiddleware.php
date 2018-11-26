@@ -25,14 +25,17 @@ class CSRFMiddleware extends Middleware
         if (strtolower($request->getMethod()) === 'post' or
             strtolower($request->getMethod()) === 'put' or
             strtolower($request->getMethod()) === 'patch' or
-            strtolower($request->getMethod()) === 'delete'){
+            strtolower($request->getMethod()) === 'delete') {
             $parsedBody = $request->getParsedBody();
             $queryParams = $request->getQueryParams();
+            $header = $request->getHeader('X-CSRF-Token');
             $token = null;
-            if (isset($parsedBody[$this->tokenName])){
+            if (isset($parsedBody[$this->tokenName])) {
                 $token = $parsedBody[$this->tokenName];
-            }else if (isset($queryParams[$this->tokenName])){
+            } elseif (isset($queryParams[$this->tokenName])) {
                 $token = $queryParams[$this->tokenName];
+            } elseif (!empty($header)) {
+                $token = array_shift($header);
             }
             $validToken = (isset($_SESSION[$this->tokenName]) and $token === $_SESSION[$this->tokenName]);
             $request = $request->withAttribute('validToken', $validToken);
