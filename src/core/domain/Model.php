@@ -2,7 +2,6 @@
 
 namespace core\domain;
 
-use core\DataArrayAccessTrait;
 use core\EventsTrait;
 use core\SubjectTrait;
 use exceptions\ErrorException;
@@ -12,12 +11,23 @@ use interfaces\domain\MementoInterface;
 use interfaces\domain\ModelInterface;
 use interfaces\view\ViewInterface;
 
-abstract class Model implements ModelInterface
+/**
+ * Class Model
+ * @package core\domain
+ *
+ * @property int $id
+ *
+ * @property-read ErrorsException $errors
+ * @property-read int $errorCode
+ *
+ */
+abstract class Model extends BaseObject implements ModelInterface
 {
 
     use SubjectTrait;
     use EventsTrait;
-    use DataArrayAccessTrait;
+
+    protected $id = 0;
 
     /**
      * @var ErrorsException
@@ -43,7 +53,7 @@ abstract class Model implements ModelInterface
     public function getError(string $key): string
     {
         /** @var ErrorException $exception */
-        foreach ($this['errors'] as $exception) {
+        foreach ($this->errors as $exception) {
             if ($exception->getKey() === $key) {
                 return $exception->getMessage();
             }
@@ -57,7 +67,7 @@ abstract class Model implements ModelInterface
     public function hasError(string $key): bool
     {
         /** @var ErrorException $exception */
-        foreach ($this['errors'] as $exception) {
+        foreach ($this->errors as $exception) {
             if ($exception->getKey() === $key) {
                 return true;
             }
@@ -82,82 +92,43 @@ abstract class Model implements ModelInterface
     }
 
     /**
-     * Получение имени метода
-     * @param string $offset
-     * @return string
+     * Установка атрибутов модели
+     * @param $name
+     * @param $value
+     * @throws \exceptions\UnknownPropertyException
      */
-    protected function methodName(string $offset)
+    public function __set($name, $value): void
     {
-        return implode('', array_map('ucfirst', explode('_', $offset)));
-    }
-
-    /**
-     * Получение данных модели по ключу
-     * @param mixed $offset
-     * @return mixed|null
-     */
-    public function offsetGet($offset)
-    {
-        $getter = 'get' . $this->methodName($offset);
-        if (method_exists($this, $getter)) {
-            return $this->$getter();
-        }
-        return $this->innerOffsetGet($offset);
-    }
-
-    /**
-     * Установка данных модели
-     * @param mixed $offset
-     * @param mixed $value
-     */
-    public function offsetSet($offset, $value)
-    {
-        $isValid = false;
-        try{
-            $validator = 'validate' . $this->methodName($offset);
-            if (method_exists($this, $validator)) {
-                $this->$validator($value);
-                $isValid = true;
-            }
-        }catch (\Exception $exception) {
-            $this->errors[] = new ErrorException(
-                $offset,
-                $value,
-                $exception->getMessage(),
-                $exception->getCode() ?: 412,
-                $exception);
-            return;
-        }
-        $setter = 'set' . $this->methodName($offset);
-        if (method_exists($this, $setter)) {
-            $this->$setter($value);
-            return;
-        }
-        if ($isValid){
-            $this->innerOffsetSet($offset, $value);
-        }
-    }
-
-    /**
-     * Загрузка данных из массива
-     * @param array $data
-     */
-    public function load(array $data)
-    {
-        foreach ($data as $offset => $value) {
-            $this->offsetSet($offset, $value);
+        try {
+            parent::__set($name, $value);
+        } catch (ErrorException $exception) {
+            $this->errors[] = $exception;
         }
     }
 
     /**
      * @inheritdoc
+     * @param MementoInterface $memento
+     * @throws \exceptions\UnknownPropertyException
+     * @throws Exception
      */
     public function restoreState(MementoInterface $memento)
     {
         $state = $memento->getState();
-        $id = isset($state['id']) and is_numeric($state['id'])? (int)$state['id'] : $this->getId();
-        $this->innerOffsetSet('id', $id);
-        $this->data = $state;
+        if (isset($state['id']) and $this->getId() > 0 and $this->getId() !== (int)$state['id']){
+            throw new Exception('Неверный идентификатор данных');
+        }
+        foreach ($state as $key => $value) {
+            if ($this->__isset($key)) {
+                continue;
+            }
+            $oldValue = $this->__get($key);
+            if ($oldValue instanceof ModelInterface and is_array($value)) {
+                $oldValue->restoreState(new Memento($value));
+                continue;
+            }
+            $this->__set($key, $value);
+        }
     }
 
     /**
@@ -166,17 +137,19 @@ abstract class Model implements ModelInterface
      */
     public function getId(): int
     {
-        return $this->offsetExists('id') ? $this->innerOffsetGet('id') : 0;
+        return $this->id;
     }
 
     /**
      * Установка идентификатора модели
      * @param int $id
-     * @throws Exception
      */
     public function setId(int $id)
     {
-        throw new Exception('Идентификатор модели нельзя менять');
+        if ($this->getId() > 0) {
+            return;
+        }
+        $this->id = $id;
     }
 
     /**

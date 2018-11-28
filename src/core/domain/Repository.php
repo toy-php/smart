@@ -5,7 +5,6 @@ namespace core\domain;
 use exceptions\Exception;
 use exceptions\ModelNotFoundException;
 use interfaces\domain\CollectionInterface;
-use interfaces\domain\MementoInterface;
 use interfaces\domain\ModelInterface;
 use interfaces\domain\RepositoryInterface;
 use RedBeanPHP\OODBBean;
@@ -15,45 +14,18 @@ use SplSubject;
 abstract class Repository implements RepositoryInterface
 {
 
-    /**
-     * Получить класс модели
-     * @return string
-     */
-    abstract public function getModelClass():string ;
+    protected $factory;
+
+    public function __construct(Factory $factory)
+    {
+        $this->factory = $factory;
+    }
 
     /**
      * Получить тип модели с которой работает репозиторий
      * @return string
      */
     abstract protected function getModelType(): string ;
-
-    /**
-     * Преобразование bean в снимок состояния модели
-     * @param OODBBean $bean
-     * @return array
-     */
-    abstract protected function map(OODBBean $bean): array ;
-
-    /**
-     * Создание модели
-     * @param MementoInterface $memento
-     * @return ModelInterface
-     * @throws Exception
-     */
-    protected function createModel(MementoInterface $memento): ModelInterface
-    {
-        $modelClass = $this->getModelClass();
-        if (!class_exists($modelClass)) {
-            throw new Exception('Невеерный тип класса модели "%s"', $modelClass);
-        }
-        $model = new $modelClass();
-        if (!$model instanceof ModelInterface){
-            throw new Exception('Модель "%s" не реализует необходимый интерфейс', $modelClass);
-        }
-        $model->restoreState($memento);
-        $model->attach($this);
-        return $model;
-    }
 
     /**
      * Создание модели из данных bean
@@ -67,7 +39,7 @@ abstract class Repository implements RepositoryInterface
         if ($bean->isEmpty()){
             throw new ModelNotFoundException('Модель не найдена');
         }
-        return $this->createModel(new Memento($this->map($bean)));
+        return $this->factory->createModel($bean);
     }
 
     /**
