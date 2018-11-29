@@ -15,4 +15,9 @@ abstract class Factory
      */
     abstract public function createModel(OODBBean $bean): ModelInterface;
 
+    /**
+     * Получить тип модели
+     * @return string
+     */
+    abstract public function getType(): string;
 }

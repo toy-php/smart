@@ -25,7 +25,10 @@ abstract class Repository implements RepositoryInterface
      * Получить тип модели с которой работает репозиторий
      * @return string
      */
-    abstract protected function getModelType(): string ;
+    protected function getModelType(): string
+    {
+        return $this->factory->getType();
+    }
 
     /**
      * Создание модели из данных bean
@@ -61,7 +64,7 @@ abstract class Repository implements RepositoryInterface
      */
     protected function createCollection(): CollectionInterface
     {
-        return new Collection();
+        return new Collection(0);
     }
 
     /**
