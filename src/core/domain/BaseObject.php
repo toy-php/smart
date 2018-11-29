@@ -16,6 +16,18 @@ class BaseObject
      */
     public function __set($name, $value): void
     {
+        $this->set($name, $value);
+    }
+
+    /**
+     * Изменение данных объекта по имени с помощью функции сеттера
+     * @param $name
+     * @param $value
+     * @return void
+     * @throws UnknownPropertyException
+     */
+    protected function set($name, $value): void
+    {
         $setter = 'set' . ucfirst($name);
         if (method_exists($this, $setter)) {
             $this->$setter($value);
@@ -41,6 +53,17 @@ class BaseObject
      */
     public function __get(string $name)
     {
+        return $this->get($name);
+    }
+
+    /**
+     * Получение данных объекта по имени с помощью функции геттера
+     * @param string $name
+     * @return mixed
+     * @throws UnknownPropertyException
+     */
+    protected function get(string $name)
+    {
         $getter = 'get' . ucfirst($name);
         if (method_exists($this, $getter)) {
             return $this->$getter();
@@ -54,6 +77,16 @@ class BaseObject
      * @return bool
      */
     public function __isset(string $name)
+    {
+       return $this->exists($name);
+    }
+
+    /**
+     * Проверка наличия свойств или данных объекта по имени
+     * @param string $name
+     * @return bool
+     */
+    protected function exists(string $name)
     {
         try {
             return $this->__get($name) !== null;

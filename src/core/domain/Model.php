@@ -211,10 +211,10 @@ abstract class Model extends BaseObject implements ModelInterface
      * @throws \exceptions\UnknownPropertyException
      * @throws InvalidArgumentException
      */
-    public function __set($name, $value): void
+    protected function set($name, $value): void
     {
         try {
-            parent::__set($name, $value);
+            parent::set($name, $value);
         } catch (\InvalidArgumentException $exception) {
             $this->errors[] = new ErrorException($name, $value, $exception->getMessage(), 412, $exception);
         } catch (UnknownPropertyException $exception) {
@@ -249,10 +249,10 @@ abstract class Model extends BaseObject implements ModelInterface
      * @return mixed
      * @throws UnknownPropertyException
      */
-    public function __get(string $name)
+    protected function get(string $name)
     {
         try {
-            return parent::__get($name);
+            return parent::get($name);
         } catch (UnknownPropertyException $exception) {
             if ($this->isReadProperty($name)) {
                 return $this->$name;
