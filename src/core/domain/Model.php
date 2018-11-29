@@ -13,6 +13,16 @@ use interfaces\domain\MementoInterface;
 use interfaces\domain\ModelInterface;
 use interfaces\view\ViewInterface;
 
+/**
+ * Class Model
+ * @package core\domain
+ *
+ * @property int $id
+ *
+ * @property int $errorCode
+ * @property ErrorsException $errors
+ *
+ */
 abstract class Model extends BaseObject implements ModelInterface
 {
 
@@ -20,17 +30,20 @@ abstract class Model extends BaseObject implements ModelInterface
     use EventsTrait;
 
     /**
+     * @memento false
      * @var \ReflectionClass
      */
     protected $reflection;
 
     /**
      * Идентификатор модели
+     * @memento true
      * @var int
      */
     protected $id = 0;
 
     /**
+     * @memento false
      * @var ErrorsException
      */
     protected $errors;
@@ -48,9 +61,17 @@ abstract class Model extends BaseObject implements ModelInterface
         'callable' => true
     ];
 
+    /**
+     * Model constructor.
+     * @param int $id
+     */
     public function __construct(int $id)
     {
-        $this->reflection = new \ReflectionClass($this);
+        try{
+            $this->reflection = new \ReflectionClass($this);
+        }catch (\ReflectionException $e){
+            // исключения не будет
+        }
         $this->errors = new ErrorsException();
         $this->setId($id);
     }
@@ -152,7 +173,7 @@ abstract class Model extends BaseObject implements ModelInterface
             return false;
         }
         $property = $this->parsePropertyDocBlock($name);
-        return ($property['access'] === 'read' or $property['access'] === 'read-write');
+        return (isset($property['access']) and ($property['access'] === 'read' or $property['access'] === 'read-write'));
     }
 
     /**
@@ -166,7 +187,21 @@ abstract class Model extends BaseObject implements ModelInterface
             return false;
         }
         $property = $this->parsePropertyDocBlock($name);
-        return ($property['access'] === 'write' or $property['access'] === 'read-write');
+        return (isset($property['access']) and ($property['access'] === 'write' or $property['access'] === 'read-write'));
+    }
+
+    /**
+     * Доступно ли свойство для создания снимка состояния
+     * @param $name
+     * @return bool
+     */
+    protected function isMemento($name): bool
+    {
+        if (!$this->reflection->hasProperty($name)) {
+            return false;
+        }
+        $property = $this->parsePropertyDocBlock($name);
+        return (isset($property['memento']) and $property['memento'] === 'true');
     }
 
     /**
@@ -183,9 +218,9 @@ abstract class Model extends BaseObject implements ModelInterface
         } catch (ErrorException $exception) {
             $this->errors[] = $exception;
         } catch (UnknownPropertyException $exception) {
-            if (!$this->isWriteProperty($name)) {
+            if ($this->isWriteProperty($name)) {
                 if (!$this->assertTypeProperty($name, $value)){
-                    throw new InvalidArgumentException('Неверный тип данных для свойства "%s" класса "%s"', $name, $this->reflection->getName());
+                    throw new InvalidArgumentException(sprintf('Неверный тип данных для свойства "%s" класса "%s"', $name, $this->reflection->getName()));
                 }
                 $this->$name = $value;
                 return;
@@ -217,7 +252,7 @@ abstract class Model extends BaseObject implements ModelInterface
     public function __get(string $name)
     {
         try {
-            return parent::__get($name) !== null;
+            return parent::__get($name);
         } catch (UnknownPropertyException $exception) {
             if ($this->isReadProperty($name)) {
                 return $this->$name;
@@ -238,7 +273,7 @@ abstract class Model extends BaseObject implements ModelInterface
         $properties = $this->reflection->getProperties();
         foreach ($properties as $property) {
             $name = $property->getName();
-            if ($this->__isset($name)){
+            if ($this->__isset($name) and $this->isMemento($name)){
                 $value = $this->__get($name);
                 if ($value instanceof ModelInterface) {
                     $state[$name] = $value->createMemento()->getState();
