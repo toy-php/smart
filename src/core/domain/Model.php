@@ -215,8 +215,8 @@ abstract class Model extends BaseObject implements ModelInterface
     {
         try {
             parent::__set($name, $value);
-        } catch (ErrorException $exception) {
-            $this->errors[] = $exception;
+        } catch (\InvalidArgumentException $exception) {
+            $this->errors[] = new ErrorException($name, $value, $exception->getMessage(), 412, $exception);
         } catch (UnknownPropertyException $exception) {
             if ($this->isWriteProperty($name)) {
                 if (!$this->assertTypeProperty($name, $value)){
