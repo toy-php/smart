@@ -5,7 +5,7 @@ namespace interfaces\domain;
 use exceptions\ErrorsException;
 use interfaces\view\ViewInterface;
 
-interface ModelInterface extends \SplSubject, \ArrayAccess
+interface ModelInterface extends \SplSubject
 {
 
     /**

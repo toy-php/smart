@@ -2,7 +2,7 @@
 
 namespace interfaces\domain;
 
-interface CollectionInterface extends ModelInterface, \Countable, \IteratorAggregate
+interface CollectionInterface extends ModelInterface, \Countable, \IteratorAggregate, \ArrayAccess
 {
 
 }
