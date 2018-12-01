@@ -31,6 +31,7 @@ class BaseObject
         $setter = 'set' . ucfirst($name);
         if (method_exists($this, $setter)) {
             $this->$setter($value);
+            return;
         }
         throw new UnknownPropertyException(sprintf('Объект класса "%s" не содержит метода доступа к свойству "%s"', get_called_class(), $name));
     }
