@@ -27,6 +27,18 @@ class Collection extends Model implements CollectionInterface
      */
     protected $meta = [];
 
+    /**
+     * Тип моделей в коллекции
+     * @var string
+     */
+    protected $type;
+
+    public function __construct(string $type = null)
+    {
+        parent::__construct(0);
+        $this->type = $type;
+    }
+
     public function restoreState(MementoInterface $memento)
     {
         $state = $memento->getState();
@@ -59,6 +71,9 @@ class Collection extends Model implements CollectionInterface
     public function offsetSet($offset, $value)
     {
         if (!$value instanceof ModelInterface){
+            throw new InvalidArgumentException();
+        }
+        if (!empty($this->type) and !$value instanceof $this->type){
             throw new InvalidArgumentException();
         }
         $this->innerOffsetSet($offset, $value);

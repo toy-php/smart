@@ -230,20 +230,6 @@ abstract class Model extends BaseObject implements ModelInterface
     }
 
     /**
-     * Получить тип модели
-     * @return string
-     * @throws Exception
-     */
-    static public function getType()
-    {
-        if (preg_match_all('/[A-Z][a-z]+/', get_called_class(), $matches)) {
-            $match = array_shift($matches);
-            return implode('_', array_map('strtolower', $match));
-        }
-        throw new Exception('Неизвестный тип модели');
-    }
-
-    /**
      * Получить значение свойства
      * @param string $name
      * @return mixed
@@ -269,7 +255,6 @@ abstract class Model extends BaseObject implements ModelInterface
     public function createMemento(): MementoInterface
     {
         $state = [];
-        $state['_type'] = static::getType();
         $properties = $this->reflection->getProperties();
         foreach ($properties as $property) {
             $name = $property->getName();

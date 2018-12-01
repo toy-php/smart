@@ -22,15 +22,6 @@ abstract class Repository implements RepositoryInterface
     }
 
     /**
-     * Получить тип модели с которой работает репозиторий
-     * @return string
-     */
-    protected function getModelType(): string
-    {
-        return $this->factory->getType();
-    }
-
-    /**
      * Создание модели из данных bean
      * @param OODBBean $bean
      * @return ModelInterface
@@ -54,7 +45,7 @@ abstract class Repository implements RepositoryInterface
      */
     public function findById(int $id): ModelInterface
     {
-        $bean = R::load($this->getModelType(), $id);
+        $bean = R::load($this->factory->getType(), $id);
         return $this->createFrom($bean);
     }
 
@@ -64,7 +55,7 @@ abstract class Repository implements RepositoryInterface
      */
     protected function createCollection(): CollectionInterface
     {
-        return new Collection(0);
+        return new Collection($this->factory->getModelClass());
     }
 
     /**
@@ -83,7 +74,7 @@ abstract class Repository implements RepositoryInterface
         }, array_keys($filter)));
         $offset = $page * $limit;
         $sql .= sprintf(' LIMIT %d, %d', $offset, $limit);
-        $beans = R::findAll($this->getModelType(), $sql, array_values($filter));
+        $beans = R::findAll($this->factory->getType(), $sql, array_values($filter));
         $total = ceil($this->count($filter) / $limit);
         $collection = $this->createCollection();
         foreach ($beans as $bean) {
@@ -101,13 +92,14 @@ abstract class Repository implements RepositoryInterface
      * Количество моделей удовлетворяющих фильтру
      * @param array $filter
      * @return int
+     * @throws Exception
      */
     public function count(array $filter = []): int
     {
         $sql = implode(' AND ', array_map(function ($key) {
             return $key . '=?';
         }, array_keys($filter)));
-        return R::count($this->getModelType(), $sql, array_values($filter));
+        return R::count($this->factory->getType(), $sql, array_values($filter));
     }
 
     /**
@@ -124,6 +116,7 @@ abstract class Repository implements RepositoryInterface
             }
             $memento = $model->createMemento();
             $state = $memento->getState();
+            $state['_type'] = $this->factory->getType();
             $id = R::store(R::dispense($state));
             if ($model->getId() === 0){
                 $state['id'] = $id;
