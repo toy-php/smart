@@ -4,6 +4,8 @@ namespace core\domain;
 
 use core\DataArrayAccessTrait;
 use core\DataCountTrait;
+use core\DataFilter;
+use core\DataFind;
 use core\DataIteratorAggregate;
 use exceptions\InvalidArgumentException;
 use interfaces\domain\CollectionInterface;
@@ -16,6 +18,8 @@ class Collection extends Model implements CollectionInterface
     use DataCountTrait;
     use DataArrayAccessTrait;
     use DataIteratorAggregate;
+    use DataFilter;
+    use DataFind;
 
     /**
      * Массив метаданных
