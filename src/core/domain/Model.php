@@ -157,6 +157,8 @@ abstract class Model extends BaseObject implements ModelInterface
         $property = $this->parsePropertyDocBlock($name);
         $type = $property['var'];
         $type = $type === 'float' ? 'double' : $type;
+        $type = $type === 'int' ? 'integer' : $type;
+        $type = $type === 'bool' ? 'boolean' : $type;
         if (in_array($type, static::$filterTypes)){
             return gettype($value) === $type;
         }
