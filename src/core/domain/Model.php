@@ -162,6 +162,9 @@ abstract class Model extends BaseObject implements ModelInterface
         if (in_array($type, static::$filterTypes)){
             return gettype($value) === $type;
         }
+        if ($type === 'mixed'){
+            return true;
+        }
         return $value instanceof $type;
     }
 
