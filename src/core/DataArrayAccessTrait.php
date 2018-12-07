@@ -90,6 +90,6 @@ trait DataArrayAccessTrait
      */
     public function offsetUnset($offset)
     {
-        $this->offsetUnset($offset);
+        $this->innerOffsetUnset($offset);
     }
 }
