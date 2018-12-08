@@ -159,7 +159,7 @@ abstract class Model extends BaseObject implements ModelInterface
         $type = $type === 'float' ? 'double' : $type;
         $type = $type === 'int' ? 'integer' : $type;
         $type = $type === 'bool' ? 'boolean' : $type;
-        if (in_array($type, static::$filterTypes)){
+        if (isset(static::$filterTypes[$type])){
             return gettype($value) === $type;
         }
         if ($type === 'mixed'){
