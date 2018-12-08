@@ -165,7 +165,9 @@ abstract class Model extends BaseObject implements ModelInterface
         if ($type === 'mixed'){
             return true;
         }
-        return $value instanceof $type;
+        $namespace = $this->reflection->getNamespaceName();
+        $className = $namespace . '\\' . basename(str_replace('\\', '/', $type));
+        return $value instanceof $className;
     }
 
     /**
