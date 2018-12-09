@@ -50,6 +50,9 @@ class Container implements ContainerInterface
                 $output = $this->parent->get($value);
             }
         }
+        if (is_callable($value)) {
+            $output = $value($this);
+        }
         return $output;
     }
 
