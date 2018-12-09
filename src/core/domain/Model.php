@@ -43,6 +43,13 @@ abstract class Model extends BaseObject implements ModelInterface
     protected $id = 0;
 
     /**
+     * @access read
+     * @memento true
+     * @var string
+     */
+    protected $_type;
+
+    /**
      * @memento false
      * @var ErrorsException
      */
@@ -64,6 +71,7 @@ abstract class Model extends BaseObject implements ModelInterface
     /**
      * Model constructor.
      * @param int $id
+     * @throws Exception
      */
     public function __construct(int $id)
     {
@@ -74,6 +82,22 @@ abstract class Model extends BaseObject implements ModelInterface
         }
         $this->errors = new ErrorsException();
         $this->setId($id);
+        $this->_type = static::getType();
+    }
+
+    /**
+     * Получить тип модели
+     * @return string
+     * @throws Exception
+     */
+    static public function getType(): string
+    {
+        $className =  basename(str_replace('\\', '/', static::class));;
+        if (preg_match_all('/[A-Z][a-z]+/', $className, $matches)) {
+            $match = array_shift($matches);
+            return implode('_', array_map('strtolower', $match));
+        }
+        throw new Exception('Неизвестный тип модели');
     }
 
     /**

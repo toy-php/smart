@@ -7,6 +7,11 @@ use interfaces\view\ViewInterface;
 
 interface ModelInterface extends \SplSubject
 {
+    /**
+     * Получить тип модели
+     * @return string
+     */
+    static public function getType(): string;
 
     /**
      * Получить идентификатор модели

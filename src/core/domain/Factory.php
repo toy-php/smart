@@ -29,12 +29,9 @@ abstract class Factory
      */
     public function getType(): string
     {
-        $model = $this->getModelClass();
-        if (preg_match_all('/[A-Z][a-z]+/', $model, $matches)) {
-            $match = array_shift($matches);
-            return implode('_', array_map('strtolower', $match));
-        }
-        throw new Exception('Неизвестный тип модели');
+        /** @var ModelInterface $modelClass */
+        $modelClass = $this->getModelClass();
+        return $modelClass::getType();
     }
 
 }

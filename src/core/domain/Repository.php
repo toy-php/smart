@@ -54,6 +54,7 @@ abstract class Repository implements RepositoryInterface
     /**
      * Получить объект коллекции
      * @return CollectionInterface
+     * @throws Exception
      */
     protected function createCollection(): CollectionInterface
     {
@@ -118,12 +119,7 @@ abstract class Repository implements RepositoryInterface
             }
             $memento = $model->createMemento();
             $state = $memento->getState();
-            $state['_type'] = $this->factory->getType();
-            $id = R::store(R::dispense($state));
-            if ($model->getId() === 0){
-                $state['id'] = $id;
-                $model->restoreState(new Memento($state));
-            }
+            $model->id = R::store(R::dispense($state));
             R::commit();
         }
         catch( \Exception $e ) {
