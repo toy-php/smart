@@ -292,7 +292,7 @@ abstract class Model extends BaseObject implements ModelInterface
             throw new Exception('Неверный идентификатор данных');
         }
         foreach ($state as $key => $value) {
-            if ($this->__isset($key)) {
+            if (!$this->__isset($key)) {
                 continue;
             }
             $oldValue = $this->__get($key);
