@@ -33,7 +33,9 @@ abstract class Repository implements RepositoryInterface
         if ($bean->isEmpty()){
             throw new ModelNotFoundException('Модель не найдена');
         }
-        return $this->factory->createModel($bean);
+        $model = $this->factory->createModel($bean);
+        $model->attach($this);
+        return $model;
     }
 
     /**
