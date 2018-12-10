@@ -2,8 +2,6 @@
 
 namespace core;
 
-use interfaces\domain\EventInterface;
-
 trait EventsTrait
 {
 
@@ -14,36 +12,36 @@ trait EventsTrait
 
     /**
      * Подписка на события
-     * @param string $eventType
+     * @param string $event
      * @param callable $listener
      * @return void
      */
-    public function on(string $eventType, callable $listener)
+    public function on(string $event, callable $listener)
     {
-        $this->listeners[$eventType][spl_object_id((object) $listener)] = $listener;
+        $this->listeners[$event][spl_object_id((object) $listener)] = $listener;
     }
 
     /**
      * Отписка от событий
-     * @param string $eventType
+     * @param string $event
      * @param callable $listener
      * @return void
      */
-    public function off(string $eventType, callable $listener)
+    public function off(string $event, callable $listener)
     {
-        unset($this->listeners[$eventType][spl_object_id((object) $listener)]);
+        unset($this->listeners[$event][spl_object_id((object) $listener)]);
     }
 
     /**
      * Оповестить слушателей события
-     * @param EventInterface $event
+     * @param string $event
+     * @param array $context
      */
-    protected function trigger(EventInterface $event)
+    protected function trigger(string $event, array $context = [])
     {
-        $eventType = get_class($event);
-        $listeners = isset($this->listeners[$eventType]) ? $this->listeners[$eventType] : [];
+        $listeners = isset($this->listeners[$event]) ? $this->listeners[$event] : [];
         foreach ($listeners as $listener) {
-            $listener($event);
+            $listener($context);
         }
     }
 

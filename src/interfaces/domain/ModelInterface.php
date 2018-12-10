@@ -34,19 +34,19 @@ interface ModelInterface extends \SplSubject
 
     /**
      * Подписка на события модели
-     * @param string $eventType
+     * @param string $event
      * @param callable $listener
      * @return void
      */
-    public function on(string $eventType, callable $listener);
+    public function on(string $event, callable $listener);
 
     /**
      * Отписка от событий модели
-     * @param string $eventType
+     * @param string $event
      * @param callable $listener
      * @return void
      */
-    public function off(string $eventType, callable $listener);
+    public function off(string $event, callable $listener);
 
     /**
      * Получить ошибки модели
