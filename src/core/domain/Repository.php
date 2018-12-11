@@ -83,11 +83,11 @@ abstract class Repository implements RepositoryInterface
         foreach ($beans as $bean) {
             $collection[] = $this->createFrom($bean);
         }
-        $collection['meta'] = [
+        $collection->setMeta([
             'currentPage' => $page,
             'totalPages' => $total,
             'rowsOnPage' => $limit
-        ];
+        ]);
         return $collection;
     }
 

@@ -6,6 +6,18 @@ interface CollectionInterface extends ModelInterface, \Countable, \IteratorAggre
 {
 
     /**
+     * Получить метаданные
+     * @return array
+     */
+    public function getMeta(): array;
+
+    /**
+     * Установить метаданные
+     * @param array $meta
+     */
+    public function setMeta(array $meta);
+
+    /**
      * Фильтрация данных
      * @param callable $filter
      * @return CollectionInterface
