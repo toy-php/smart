@@ -55,7 +55,7 @@ class Template
      */
     public function __get($name)
     {
-        return $this->model[$name];
+        return $this->__isset($name) ? $this->model->$name : null;
     }
 
     /**
@@ -65,7 +65,7 @@ class Template
      */
     public function __isset($name)
     {
-        return isset($this->model[$name]);
+        return isset($this->model->$name);
     }
 
     /**
